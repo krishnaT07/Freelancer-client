@@ -225,4 +225,3 @@ const CreateGigForm = ({ gig }: CreateGigFormProps) => {
 };
 
 export default CreateGigForm;
-

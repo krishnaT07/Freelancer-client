@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -28,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { notFound, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-
 export default function OrdersPage() {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
@@ -47,14 +45,13 @@ export default function OrdersPage() {
       const filteredOrders = allOrders.filter(order => order.client.id === currentUser.id);
       setUserOrders(filteredOrders);
     } else if (!loading && !user) {
-       router.push('/login');
+      router.push('/login');
     }
   }, [currentUser, loading, router, user]);
   
   if (currentUser && currentUser.role !== 'client' && !loading) {
     return notFound();
   }
-
 
   if (loading) {
     return <div>Loading...</div>;
@@ -82,24 +79,42 @@ export default function OrdersPage() {
               {userOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>
-                     <Link href={`/gigs/${order.gig.id}`} className="font-medium hover:underline flex items-center gap-3">
-                        <Image src={order.gig.imageUrl} alt={order.gig.title} width={40} height={30} className="rounded-sm hidden sm:block object-cover" />
-                        <span>{order.gig.title}</span>
-                     </Link>
+                    <Link href={`/gigs/${order.gig.id}`} className="font-medium hover:underline flex items-center gap-3">
+                      {order.gig.imageUrl ? (
+                        <Image
+                          src={order.gig.imageUrl}
+                          alt={order.gig.title}
+                          width={40}
+                          height={30}
+                          className="rounded-sm hidden sm:block object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-8 bg-gray-200 rounded-sm hidden sm:block" />
+                      )}
+                      <span>{order.gig.title}</span>
+                    </Link>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">{order.gig.freelancer.name}</TableCell>
+                  <TableCell className="hidden md:table-cell">{order.gig.freelancer?.name ?? 'Unknown'}</TableCell>
                   <TableCell className="hidden sm:table-cell">${order.gig.price.toFixed(2)}</TableCell>
                   <TableCell>
-                    <Badge 
-                        variant={order.status === 'Completed' ? 'default' : order.status === 'Cancelled' ? 'destructive' : 'secondary'}
-                        className={cn(
-                            order.status === 'Completed' && 'bg-green-600 hover:bg-green-700',
-                            order.status === 'In Progress' && 'bg-blue-500 hover:bg-blue-600',
-                            order.status === 'Pending' && 'bg-yellow-500 hover:bg-yellow-600'
-                         )}
-                    >
-                        {order.status}
-                    </Badge>
+                    {(() => {
+                      const statusLower = order.status.toLowerCase();
+                      return (
+                        <Badge
+                          variant={
+                            statusLower === 'completed' ? 'default' :
+                            statusLower === 'cancelled' ? 'destructive' : 'secondary'
+                          }
+                          className={cn(
+                            statusLower === 'completed' && 'bg-green-600 hover:bg-green-700',
+                            statusLower === 'in progress' && 'bg-blue-500 hover:bg-blue-600',
+                            statusLower === 'pending' && 'bg-yellow-500 hover:bg-yellow-600'
+                          )}
+                        >
+                          {order.status}
+                        </Badge>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">{order.orderDate}</TableCell>
                 </TableRow>
@@ -110,8 +125,8 @@ export default function OrdersPage() {
           <div className="text-center py-12">
             <h3 className="text-lg font-semibold">No Orders Found</h3>
             <p className="mb-4 mt-2 text-muted-foreground">You haven't purchased any gigs yet.</p>
-             <Button asChild>
-                <Link href="/">Browse Gigs</Link>
+            <Button asChild>
+              <Link href="/">Browse Gigs</Link>
             </Button>
           </div>
         )}
