@@ -8,6 +8,8 @@ export interface User {
   role: 'buyer' | 'seller' | 'admin';
   createdAt?: string;
   updatedAt?: string;
+   location?: string; // Add this
+  memberSince?: string | Date; // Add this
 }
 
 // ==================== Auth ====================
@@ -47,6 +49,7 @@ export interface Gig {
   userId?: string;
   createdAt?: string;
   updatedAt?: string;
+   imageUrl?: string;
 }
 
 
