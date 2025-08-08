@@ -1,48 +1,48 @@
-
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 export const useSocket = () => {
-    const [isConnected, setIsConnected] = useState(false);
-    const socketRef = useRef<Socket | null>(null);
-    // client side (use-socket.ts)
-const socket = io('http://localhost:4000');
+  const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef<Socket | null>(null);
 
+  useEffect(() => {
+    if (socketRef.current) return;
 
-    useEffect(() => {
-        if (socketRef.current) return;
+    const socket = io('http://localhost:4000', {
+      path: '/api/socket',
+      // add any options here
+      // addTrailingSlash: false, // optional
+    });
 
-        // Initialize the socket connection to the same host
-        const socket = io({
-            path: '/api/socket',
-            addTrailingSlash: false,
-        });
-        socketRef.current = socket;
+    socketRef.current = socket;
 
-        const onConnect = () => {
-            console.log('Socket connected');
-            setIsConnected(true);
-        };
+    const onConnect = () => {
+      console.log('Socket connected');
+      setIsConnected(true);
+    };
 
-        const onDisconnect = () => {
-            console.log('Socket disconnected');
-            setIsConnected(false);
-        };
+    const onDisconnect = () => {
+      console.log('Socket disconnected');
+      setIsConnected(false);
+    };
 
-        socket.on('connect', onConnect);
-        socket.on('disconnect', onDisconnect);
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
 
-        // Cleanup on component unmount
-        return () => {
-            console.log('Disconnecting socket...');
-            socket.off('connect', onConnect);
-            socket.off('disconnect', onDisconnect);
-            socket.disconnect();
-            socketRef.current = null;
-        };
-    }, []);
+    // Cleanup function: remove listeners and disconnect socket
+    return () => {
+      if (!socketRef.current) return;
 
-    return { socket: socketRef.current, isConnected };
+      console.log('Disconnecting socket...');
+      socketRef.current.off('connect', onConnect);
+      socketRef.current.off('disconnect', onDisconnect);
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    };
+  }, []);
+
+  return { socket: socketRef.current, isConnected };
 };
+

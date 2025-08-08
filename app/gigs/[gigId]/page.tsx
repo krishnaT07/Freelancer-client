@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState } from "react";
@@ -21,7 +20,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import Script from 'next/script';
 
-
 const ReviewForm = ({ gigId, onReviewSubmit }: { gigId: string, onReviewSubmit: (review: Review) => void }) => {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
@@ -43,7 +41,12 @@ const ReviewForm = ({ gigId, onReviewSubmit }: { gigId: string, onReviewSubmit: 
         
         const newReview: Review = {
             id: `review-${Date.now()}`,
-            author: { id: currentUser.id, name: currentUser.name, avatarUrl: currentUser.avatarUrl },
+            author: { 
+                id: currentUser.id, 
+                name: currentUser.name, 
+                avatarUrl: currentUser.avatarUrl, 
+                role: currentUser.role
+            },
             rating,
             comment,
             createdAt: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -81,31 +84,32 @@ const ReviewForm = ({ gigId, onReviewSubmit }: { gigId: string, onReviewSubmit: 
                         className="min-h-[100px]"
                     />
                     <Button type="submit" disabled={!user}>Submit Review</Button>
-                     {!user && <p className="text-sm text-muted-foreground">Please <Link href="/login" className="underline">log in</Link> to leave a review.</p>}
+                    {!user && <p className="text-sm text-muted-foreground">Please <Link href="/login" className="underline">log in</Link> to leave a review.</p>}
                 </form>
             </CardContent>
         </Card>
     )
 }
 
-
 export default function GigDetailsPage({ params }: { params: { gigId: string } }) {
   const router = useRouter();
   const [user] = useAuthState(auth);
   const { toast } = useToast();
-  const { gigId } = params; 
-
+  const { gigId } = params;
 
   const gig = gigs.find((g) => g.id === gigId);
-  
-  const [reviews, setReviews] = useState(gig?.reviews ?? []);
-  
-  if (!gig) {
+
+  // Guard clause for gig and required nested properties
+  if (!gig || !gig.freelancer || typeof gig.rating !== 'number' || !gig.images) {
     notFound();
   }
-  
-  const freelancer = users.find(u => u.id === gig.freelancer.id);
-  
+
+  // Use the freelancer object directly
+  const freelancer = gig.freelancer;
+
+  const [reviews, setReviews] = useState<Review[]>(gig.reviews ?? []);
+  const [isPaying, setIsPaying] = useState(false);
+
   const handleContact = () => {
     if (!user || !freelancer) {
       router.push('/login');
@@ -131,7 +135,7 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
         conversation = newConversation;
     }
     
-    router.push(`/dashboard/messages?id=${conversation?.id}`);
+    router.push(`/dashboard/messages?id=${conversation.id}`);
   }
 
   const handlePurchase = () => {
@@ -143,8 +147,8 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
     
     const newOrder: Order = {
         id: `order-${Date.now()}`,
-        gig: gig,
-        client: client,
+        gig,
+        client,
         status: 'In Progress',
         orderDate: new Date().toISOString().split('T')[0],
     };
@@ -172,59 +176,66 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
     }
   };
 
-  const [isPaying, setIsPaying] = useState(false);
-
   const handleRazorpayPayment = async () => {
     if (!user) {
       router.push('/login?redirect=/gigs/' + gigId);
       return;
     }
     setIsPaying(true);
-    // 1. Create order on backend
-    const res = await fetch('http://localhost:4000/api/razorpay/order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: gig.price, currency: 'INR' }),
-    });
-    const order = await res.json();
-    if (!order.id) {
-      toast({ variant: 'destructive', title: 'Payment Error', description: 'Could not create order.' });
-      setIsPaying(false);
-      return;
-    }
-    // 2. Open Razorpay checkout
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'YOUR_KEY_ID',
-      amount: order.amount,
-      currency: order.currency,
-      name: gig.title,
-      description: gig.description,
-      order_id: order.id,
-      handler: async function (response: any) {
-        // 3. Verify payment
-        const verifyRes = await fetch('http://localhost:4000/api/razorpay/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(response),
-        });
-        const verifyData = await verifyRes.json();
-        if (verifyData.status === 'success') {
-          // 4. Create order in app
-          handlePurchase();
-        } else {
-          toast({ variant: 'destructive', title: 'Payment Failed', description: 'Payment verification failed.' });
-        }
+
+    try {
+      // 1. Create order on backend
+      const res = await fetch('http://localhost:4000/api/razorpay/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: gig.price, currency: 'INR' }),
+      });
+      const order = await res.json();
+
+      if (!order.id) {
+        toast({ variant: 'destructive', title: 'Payment Error', description: 'Could not create order.' });
         setIsPaying(false);
-      },
-      prefill: {
-        name: user.displayName,
-        email: user.email,
-      },
-      theme: { color: '#3399cc' },
-    };
-    // @ts-ignore
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+        return;
+      }
+
+      // 2. Open Razorpay checkout
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'YOUR_KEY_ID',
+        amount: order.amount,
+        currency: order.currency,
+        name: gig.title,
+        description: gig.description,
+        order_id: order.id,
+        handler: async function (response: any) {
+          // 3. Verify payment
+          const verifyRes = await fetch('http://localhost:4000/api/razorpay/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(response),
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.status === 'success') {
+            // 4. Create order in app
+            handlePurchase();
+          } else {
+            toast({ variant: 'destructive', title: 'Payment Failed', description: 'Payment verification failed.' });
+          }
+          setIsPaying(false);
+        },
+        prefill: {
+          name: user.displayName,
+          email: user.email,
+        },
+        theme: { color: '#3399cc' },
+      };
+      // @ts-ignore
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Payment Error', description: 'Something went wrong during payment.' });
+      setIsPaying(false);
+    }
   };
 
   return (
@@ -233,12 +244,12 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
         <div className="md:col-span-2">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">{gig.title}</h1>
           <div className="flex items-center gap-4 mb-4 flex-wrap">
-            <Link href={`/freelancer/${gig.freelancer.id}`} className="flex items-center gap-2 hover:underline">
+            <Link href={`/freelancer/${freelancer.id}`} className="flex items-center gap-2 hover:underline">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={gig.freelancer.avatarUrl} />
-                <AvatarFallback>{gig.freelancer.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={freelancer.avatarUrl} />
+                <AvatarFallback>{freelancer.name.charAt(0)}</AvatarFallback>
               </Avatar>
-              <span className="font-semibold text-lg">{gig.freelancer.name}</span>
+              <span className="font-semibold text-lg">{freelancer.name}</span>
             </Link>
             <Separator orientation="vertical" className="h-6" />
             <div className="flex items-center gap-1">
@@ -255,9 +266,9 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
                   <Image
                     alt={`${gig.title} gallery image ${index + 1}`}
                     className="aspect-video w-full rounded-lg object-cover"
-                    height="450"
+                    height={450}
                     src={src}
-                    width="800"
+                    width={800}
                   />
                 </CarouselItem>
               ))}
@@ -312,7 +323,7 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between items-baseline">
-                <p className="text-2xl font-bold">${gig.price.toFixed(2)}</p>
+                <p className="text-2xl font-bold">₹{gig.price.toFixed(2)}</p>
                 <p className="text-muted-foreground">Starting Price</p>
               </div>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -341,3 +352,4 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
     </div>
   );
 }
+

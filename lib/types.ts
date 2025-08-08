@@ -46,6 +46,7 @@ export interface Gig {
   totalReviews?: number;
   reviews?: Review[];
   tags?: string[];
+  
 }
 
 // ==================== Order ====================
@@ -128,4 +129,5 @@ export interface GigFormData {
   price: number;
   shortDesc: string;
   features: string[];
+  
 }

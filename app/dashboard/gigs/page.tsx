@@ -73,7 +73,10 @@ export default function GigsPage() {
     }
     
     if (currentUser && currentUser.role === 'freelancer') {
-      const filteredGigs = allGigs.filter(gig => gig.freelancer.id === currentUser.id);
+      const filteredGigs = allGigs.filter(
+  gig => gig.freelancer?.id === currentUser.id
+);
+
       setUserGigs(filteredGigs);
     }
     setIsDataLoading(false);

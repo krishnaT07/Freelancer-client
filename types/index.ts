@@ -1,107 +1,59 @@
-// ==================== User ====================
-export interface User {
-  _id: string;
-  name: string;
-  email: string;
-  password?: string;
-  avatar?: string;
-  role: 'buyer' | 'seller' | 'admin';
-  createdAt?: string;
-  updatedAt?: string;
-   location?: string; // Add this
-  memberSince?: string | Date; // Add this
-}
-
-// ==================== Auth ====================
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface RegisterPayload extends LoginPayload {
-  name: string;
-  role: 'buyer' | 'seller';
-}
-
-export interface AuthContextType {
-  currentUser: User | null;
-  login: (data: LoginPayload) => Promise<void>;
-  register: (data: RegisterPayload) => Promise<void>;
-  logout: () => void;
-  isLoading: boolean;
-}
-
-// ==================== Gig ====================
 // client/types/index.ts
 
+export type User = {
+  id: string;
+  name: string;
+  role: "client" | "freelancer";
+  avatarUrl: string;
+  location?: string;
+  memberSince?: string | Date;
+};
 
-export interface Gig {
-  _id?: string;
+export type Review = {
+  id: string;
+  author: User;
+  rating: number;
+  comment: string;
+  createdAt: string;
+};
+
+export type Gig = {
+  id: string;
   title: string;
   description: string;
-  category: string;
   price: number;
+  rating: number;
+  totalReviews: number;
+  category: string;
   deliveryTime: number;
-  revisions: number;
+  revisionNumber: number; // required everywhere
+  images: string[];
+  freelancer: User;
+  reviews?: Review[];
+  imageUrl?: string;
+  tags?: string[];
   features: string[];
-  coverImage?: string;
-  images?: string[];
-  userId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-   imageUrl?: string;
-}
-
-
-
-// ==================== Order ====================
-export interface Order {
-  _id: string;
-  gigId: string;
-  buyerId: string;
-  sellerId: string;
-  status: 'pending' | 'in progress' | 'completed' | 'cancelled';
-  amount: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// ==================== Message ====================
-export interface Message {
-  _id: string;
-  chatId: string;
-  senderId: string;
-  receiverId: string;
-  text: string;
-  seen: boolean;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-// ==================== Chat ====================
-export interface Chat {
-  _id: string;
-  participants: [string, string]; // [senderId, receiverId]
-  lastMessage?: Message;
-  updatedAt?: string;
-}
-
-// ==================== Notification ====================
-export interface Notification {
-  _id: string;
-  userId: string;
-  type: 'order' | 'gig' | 'message' | 'review';
-  message: string;
-  seen: boolean;
-  createdAt: string;
-}
-export interface GigFormData {
-  title: string;
-  description: string;
-  category: string;
-  deliveryTime: number;
-  revisionNumber: number;
-  price: number;
   shortDesc: string;
-  features: string[];
-}
+  // ...other fields
+};
+export type Message = {
+  text: string;
+  timestamp: string;
+};
+
+export type Conversation = {
+  id: string;
+  participants: User[];
+  messages: Message[];
+  lastMessage: Message;
+  unreadCount: number;
+};
+
+export type Order = {
+  id: string;
+  gig: Gig;
+  client: User;
+  status: "In Progress" | "Completed" | "Cancelled";
+  orderDate: string;
+};
+export type GigFormData = Omit<Gig, 'id'>;

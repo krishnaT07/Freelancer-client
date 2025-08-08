@@ -1,20 +1,19 @@
-
-'use client'
-
-import { CreateGigForm } from "@/components/create-gig-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { gigs } from "@/lib/data";
-import { notFound } from "next/navigation";
+import { Gig } from "@/types"; 
+import CreateGigForm from "@/components/create-gig-form";
 
 export default function EditGigPage({ params }: { params: { gigId: string } }) {
-  const { gigId } = params;
-  const gig = gigs.find(g => g.id === gigId);
+  // Example: this will later be replaced with actual API/data fetching
+  const gigs: Gig[] = []; // ✅ consistent Gig type
 
-  if (!gig) {
-    notFound();
-  }
+  const gig = gigs.find((g) => g.id === params.gigId);
 
   return (
-      <CreateGigForm gig={gig} />
+    <div>
+      {gig ? (
+        <CreateGigForm gig={gig} />
+      ) : (
+        <p>Gig not found</p>
+      )}
+    </div>
   );
 }
