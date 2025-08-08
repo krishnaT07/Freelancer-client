@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
+
+import { useState, useEffect, useRef } from 'react';
 import { Search, Send, Languages, Loader2, MessageSquare } from 'lucide-react';
 import { conversations as allConversations, orders } from '@/lib/data';
 import { useAuthState } from 'react-firebase-hooks/auth';
