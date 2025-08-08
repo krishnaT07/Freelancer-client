@@ -8,12 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DollarSign, Package, CheckCircle, Star, ShoppingCart, MessageSquare, Loader2 } from "lucide-react";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import ChartContainer from "@/components/ui/ChartContainer";
+import { ChartTooltipContent } from "@/components/ui/ChartTooltip";
+
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 import { Area, AreaChart } from "recharts";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
@@ -162,7 +160,7 @@ const FreelancerDashboard = ({ user }: { user: User }) => {
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} />
                 <YAxis />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                <Tooltip cursor={false} content={<ChartTooltipContent />} />
                 <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
               </BarChart>
             </ChartContainer>
@@ -182,7 +180,7 @@ const FreelancerDashboard = ({ user }: { user: User }) => {
               >
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                 <Area
                   dataKey="desktop"
                   type="natural"
@@ -368,7 +366,7 @@ const ClientDashboard = ({ user }: { user: User }) => {
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} />
                 <YAxis />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                <Tooltip cursor={false} content={<ChartTooltipContent />} />
                 <Bar dataKey="spent" fill="var(--color-spent)" radius={4} />
               </BarChart>
             </ChartContainer>
@@ -388,7 +386,7 @@ const ClientDashboard = ({ user }: { user: User }) => {
               >
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                 <Area
                   dataKey="orders"
                   type="natural"
