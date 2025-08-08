@@ -37,7 +37,7 @@ export async function generateTagsAction(input: GenerateGigTagsInput): Promise<s
   try {
     // In a real implementation, this would make an HTTP request to your backend
     // For now, return mock data or implement the logic directly
-    const response = await fetch('http://localhost:4000/api/generate-tags', {
+    const response = await fetch('https://freelancer-server-9l9n.onrender.com/api/generate-tags', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export async function generateTagsAction(input: GenerateGigTagsInput): Promise<s
 export async function generateDescriptionAction(input: GenerateGigDescriptionInput): Promise<string> {
   try {
     // In a real implementation, this would make an HTTP request to your backend
-    const response = await fetch('http://localhost:4000/api/generate-description', {
+    const response = await fetch('https://freelancer-server-9l9n.onrender.com/api/generate-description', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export async function generateDescriptionAction(input: GenerateGigDescriptionInp
 export async function generateImageAction(title: string): Promise<string | { error: string }> {
   try {
     // In a real implementation, this would make an HTTP request to your backend
-    const response = await fetch('http://localhost:4000/api/generate-image', {
+    const response = await fetch('https://freelancer-server-9l9n.onrender.com/api/generate-image', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export async function generateImageAction(title: string): Promise<string | { err
 export async function supportChatAction(input: SupportChatInput): Promise<string> {
   try {
     // In a real implementation, this would make an HTTP request to your backend
-    const response = await fetch('http://localhost:4000/api/support-chat', {
+    const response = await fetch('https://freelancer-server-9l9n.onrender.com/api/support-chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export async function supportChatAction(input: SupportChatInput): Promise<string
 export async function recommendGigsAction(input: RecommendGigsInput): Promise<string[]> {
   try {
     // In a real implementation, this would make an HTTP request to your backend
-    const response = await fetch('http://localhost:4000/api/recommend-gigs', {
+    const response = await fetch('https://freelancer-server-9l9n.onrender.com/api/recommend-gigs', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ export async function recommendGigsAction(input: RecommendGigsInput): Promise<st
 export async function translateTextAction(input: TranslateTextInput): Promise<string> {
   try {
     // In a real implementation, this would make an HTTP request to your backend
-    const response = await fetch('http://localhost:4000/api/translate-text', {
+    const response = await fetch('https://freelancer-server-9l9n.onrender.com/api/translate-text', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
