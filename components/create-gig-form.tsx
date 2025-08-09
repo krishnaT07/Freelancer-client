@@ -50,11 +50,11 @@ const CreateGigForm = ({ gig }: CreateGigFormProps) => {
     try {
       if (gig) {
         // Editing
-        await axios.put(`/api/gigs/${gig.id}`, data);
+        await axios.put(`/gigs/${gig.id}`, data);
         toast.success('Gig updated successfully!');
       } else {
         // Creating
-        await axios.post('/api/gigs', data);
+        await axios.post('/gigs', data);
         toast.success('Gig created successfully!');
         reset();
       }
