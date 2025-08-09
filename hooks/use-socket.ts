@@ -10,7 +10,7 @@ export const useSocket = () => {
   useEffect(() => {
     if (socketRef.current) return;
 
-    const socket = io('http://localhost:4000', {
+    const socket = io('https://freelancer-server-9l9n.onrender.com', {
       path: '/api/socket',
       // add any options here
       // addTrailingSlash: false, // optional

@@ -185,7 +185,7 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
 
     try {
       // 1. Create order on backend
-      const res = await fetch('http://localhost:4000/api/razorpay/order', {
+      const res = await fetch('http://freelancer-server-9l9n.onrender.com/api/razorpay/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: gig.price, currency: 'INR' }),
@@ -208,7 +208,7 @@ export default function GigDetailsPage({ params }: { params: { gigId: string } }
         order_id: order.id,
         handler: async function (response: any) {
           // 3. Verify payment
-          const verifyRes = await fetch('http://localhost:4000/api/razorpay/verify', {
+          const verifyRes = await fetch('http://freelancer-server-9l9n.onrender.com/api/razorpay/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(response),

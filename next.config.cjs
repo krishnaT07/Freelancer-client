@@ -2,9 +2,17 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['example.com', 'placehold.co'],
-    domains: ['placehold.co', 'another-domain.com'],
+    domains: ['placehold.co', 'example.com', 'another-domain.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
 };
 
 module.exports = nextConfig;
+
